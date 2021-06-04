@@ -1,38 +1,35 @@
 from revComp import *
 import unittest
 
+
 class TestRevComp(unittest.TestCase):
     def test_revcomp(self):
-        self.assert(revComp("accgttaattgccgt"),"acggcaattaacggt)
-        self.assert(revComp("ACCGTTAATTGCCGT",True),"ACGGGCAATTAACGGT")
-        self.assert(revComp("agtcgahgattc"),1)
-        self.assert(revComp("agtcgtagcnnn---taagct"),"agctta---nnngctacgact")
+        self.assertEqual(revComp("accgttaattgccgt"),"acggcaattaacggt")
+        self.assertEqual(revComp("ACCGTTAATTGCCGT",True),"ACGGGCAATTAACGGT")
+        self.assertEqual(revComp("agtcgahgattc"),1)
+        self.assertEqual(revComp("agtcgtagcnnn---taagct"),"agctta---nnngctacgact")
+
 
     def test_revcompcheat(self):
-        self.assert(revCompCheat("fasta.fasta","fasta"),">label1\ntttttcaagaagaccc")
-        self.assert(revCompCheat("multifasta.fasta","fasta"),">label2\nctttgtataatccc\n>label3\ngtcctctaaat\nctttgtataatccc>label4\ntagcgatcgggaattcat")
-        self.assert(revCompCheat("agggcttca"),"tgaagccct")
+        self.assertEqual(revCompCheat("fasta.fasta","fasta"),">label1\ntttttcaagaagaccc")
+        self.assertEqual(revCompCheat("multifasta.fasta","fasta"),">label2\nctttgtataatccc\n>label3\ngtcctctaaat\nctttgtataatccc>label4\ntagcgatcgggaattcat")
+        self.assertEqual(revCompCheat("agggcttca","string"),"tgaagccct")
+
 
     def test_checkformat(self):
-        self.assert(checkformat("fasta","fasta.fasta"),True)
-        self.assert(checkformat("string","aagggttac"),True)
-        self.assert(checkformat("fasta","attaggsc"),False)
-        self.assert(checkformat("string","fasta.fasta"),False)
+        self.assertEqual(checkformat("fasta","fasta.fasta"),True)
+        self.assertEqual(checkformat("string","aagggttac"),True)
+        self.assertEqual(checkformat("fasta","attaggsc"),False)
+        self.assertEqual(checkformat("string","fasta.fasta"),False)
+
 
     def test_checkdna(self):
-        self.assert(checkDNA("agggcttca"),True)
-        self.assert(checkDNA("agggcnA-ttca"),True)
-        self.assert(checkDNA("agdggcfttca"),False)
-        self.assert(checkDNA("agggRYcttca"),False)
+        self.assertEqual(checkDNA("agggcttca"),True)
+        self.assertEqual(checkDNA("agggcnA-ttca"),True)
+        self.assertEqual(checkDNA("agdggcfttca"),False)
+        self.assertEqual(checkDNA("agggRYcttca"),False)
 
 
-
-def test():
-    sequence = "accgttaattgccgt"
-    sequence2 = "ACCGTTAATTGCCGT"
-    sequence3 = "agtcgahgattc"
-    sequence4 = "agtcgtagcnnn---taagct"
-    fasta = "fasta.fasta"
-    multifasta = "multifasta.fasta"
-    
+if __name__ == '__main__':
+    unittest.main()
 
