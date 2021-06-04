@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 
 import sys
+import os
 import argparse
 from Bio import SeqIO, Seq
 
 
 parser = argparse.ArgumentParser(description='Do reverse complementing')
-parser.add_argument('inputSeq', type=str, help='the DNA sequence to be reverse complemented, as a string or in a FASTA formatted file (specify with --format)')
-parser.add_argument('--format', dest='formt', choices=['string', 'fasta'], default='string')
+parser.add_argument('inputSeq', type=str, help='the DNA sequence to be reverse complemented, as a string or in a FASTA formatted file (specify with --formt)')
+parser.add_argument('formt', choices=['string', 'fasta'], default='string')
 parser.add_argument('--cheat', dest='cheat', action='store_true')
 parser.add_argument('--caps', dest='caps', action='store_true')
 parser.add_argument('--out', dest='out', default=None, help='Specify the name for your output file, without file extension.')
@@ -16,7 +17,7 @@ parser.set_defaults(cheat=False, inputSeq="", caps=False)
 args = parser.parse_args()
 
 
-def checkformat():
+def checkformat(formt,inputSeq):
     """
     Check whether format matches flag.
     """
@@ -36,7 +37,7 @@ def checkDNA(sequence):
     return all(match)
 
 
-def revComp(sequence):
+def revComp(sequence,caps=False):
     """
     Reverse complements the provided sequence by substituting the appropriate character and 
     prepending this to a new string (the output).
@@ -63,17 +64,17 @@ def revComp(sequence):
         return outputSeq
 
 
-def revCompCheat(sequence):
+def revCompCheat(sequence,formt):
     """
     Reverse complements using biopython. If input is a simple string, the Seq library
     is used, else the SeqIO library handles full FASTA files.
     """
     if formt == 'string':
-        seq = Seq.Seq(inputSeq)
-        return = str(seq.reverse_complement())
-    elif formt == 'fasta':
+        seq = Seq.Seq(sequence)
+        return str(seq.reverse_complement())
+    elif args.formt == 'fasta':
         seq_objects = []
-        with open(inputSeq, "r") as infile:
+        with open(sequence, "r") as infile:
             for seq_record in SeqIO.parse(infile, "fasta"):
                 ID = seq_record.id
                 new_seq_record = seq_record.reverse_complement()
@@ -88,11 +89,11 @@ def revCompCheat(sequence):
 
 
 def main():
-    checkformat()
-    if cheat:
+    checkformat(args.formt,args.inputSeq)
+    if args.cheat:
         # use biopython to reverse complement the sequence
-        cheated = revCompCheat(inputSeq)
-        if out:
+        cheated = revCompCheat(args.inputSeq,args.formt)
+        if args.out:
             out = out + '.fasta'
             with open(out, 'w') as outfile:
                 outfile.write(cheated)
@@ -101,8 +102,8 @@ def main():
             return output
     else:
         # check sequence is DNA - if it is, reverse complement it - if not, exit program
-        if checkDNA(inputSeq):
-            revComp(inputSeq)
+        if checkDNA(args.inputSeq):
+            print(revComp(args.inputSeq))
         else:
             sys.exit("Non compliant sequence provided. Is it DNA? I can handle \"N\" and \"-\" but nowt else")
         
