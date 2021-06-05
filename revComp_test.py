@@ -1,5 +1,6 @@
 from revComp import *
 import unittest
+from io import StringIO
 
 
 class TestRevComp(unittest.TestCase):

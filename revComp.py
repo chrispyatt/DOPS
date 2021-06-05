@@ -11,7 +11,7 @@ parser.add_argument('inputSeq', type=str, help='the DNA sequence to be reverse c
 parser.add_argument('--fasta', dest='fasta', action='store_true')
 parser.add_argument('--cheat', dest='cheat', action='store_true')
 parser.add_argument('--caps', dest='caps', action='store_true')
-parser.add_argument('--out', dest='out', default=None, help='Specify the name for your output file, without file extension.')
+parser.add_argument('--out', dest='out', default=None, help='Specify the name for your output file, without file extension. If no name entered, output will be printed to the console.')
 parser.set_defaults(cheat=False, fasta=False, inputSeq="", caps=False)
 
 args = parser.parse_args()
@@ -94,22 +94,23 @@ def revCompCheat(sequence,fasta):
 
 def main():
     checkformat(args.fasta,args.inputSeq)
-    if args.cheat:
+    output = ''
+    if args.cheat or args.fasta:
         # use biopython to reverse complement the sequence
-        cheated = revCompCheat(args.inputSeq,args.fasta)
-        if args.out:
-            out = out + '.fasta'
-            with open(out, 'w') as outfile:
-                outfile.write(cheated)
-            return 'Output written to {}'.format(out)
-        else:
-            return output
+        output = revCompCheat(args.inputSeq,args.fasta)
     else:
         # check sequence is DNA - if it is, reverse complement it - if not, exit program
         if checkDNA(args.inputSeq):
-            print(revComp(args.inputSeq))
+            output = revComp(args.inputSeq)
         else:
             sys.exit("Non compliant sequence provided. Is it DNA? I can handle \"N\" and \"-\" but nowt else")
+    if args.out:
+        outfilename = str(args.out) + '.fasta'
+        with open(outfilename, 'w') as outfile:
+            outfile.write(output)
+        print('Output written to {}.fasta'.format(args.out))
+    else:
+        print(output)
         
     
 
