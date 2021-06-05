@@ -7,24 +7,28 @@ from Bio import SeqIO, Seq
 
 
 parser = argparse.ArgumentParser(description='Do reverse complementing')
-parser.add_argument('inputSeq', type=str, help='the DNA sequence to be reverse complemented, as a string or in a FASTA formatted file (specify with --formt)')
-parser.add_argument('formt', choices=['string', 'fasta'], default='string')
+parser.add_argument('inputSeq', type=str, help='the DNA sequence to be reverse complemented, as a string or in a FASTA formatted file (specify with --fasta)')
+parser.add_argument('--fasta', dest='fasta', action='store_true')
 parser.add_argument('--cheat', dest='cheat', action='store_true')
 parser.add_argument('--caps', dest='caps', action='store_true')
 parser.add_argument('--out', dest='out', default=None, help='Specify the name for your output file, without file extension.')
-parser.set_defaults(cheat=False, inputSeq="", caps=False)
+parser.set_defaults(cheat=False, fasta=False, inputSeq="", caps=False)
 
 args = parser.parse_args()
 
 
-def checkformat(formt,inputSeq):
+def checkformat(fasta,inputSeq):
     """
     Check whether format matches flag.
     """
-    if formt == 'fasta':
+    if fasta:
         assert os.path.isfile(inputSeq), "Oh no! I expected a FASTA file but all I got was a string!"
-    elif formt == 'string':
-        assert checkDNA(inputSeq), "If --format is set to \'string\', please enter just the sequence, without any FASTA header."
+        with open(inputSeq, 'r') as handle:
+            fas = SeqIO.parse(handle, 'fasta')
+            return any(fas)
+    else:
+        assert checkDNA(inputSeq), "Please enter just the sequence, without any FASTA header (or invoke --fasta)."
+        return True
 
 
 def checkDNA(sequence):
@@ -64,15 +68,15 @@ def revComp(sequence,caps=False):
         return outputSeq
 
 
-def revCompCheat(sequence,formt):
+def revCompCheat(sequence,fasta):
     """
     Reverse complements using biopython. If input is a simple string, the Seq library
     is used, else the SeqIO library handles full FASTA files.
     """
-    if formt == 'string':
+    if not fasta:
         seq = Seq.Seq(sequence)
         return str(seq.reverse_complement())
-    elif args.formt == 'fasta':
+    else:
         seq_objects = []
         with open(sequence, "r") as infile:
             for seq_record in SeqIO.parse(infile, "fasta"):
@@ -83,16 +87,16 @@ def revCompCheat(sequence,formt):
         #convert list of sequence objects back to string
         output = ''
         for obj in seq_objects:
-            output = output + obj.id + '\n' + obj.seq + '\n'
+            output = output + ">" + str(obj.id) + '\n' + str(obj.seq) + '\n'
         #return the output string
         return output
 
 
 def main():
-    checkformat(args.formt,args.inputSeq)
+    checkformat(args.fasta,args.inputSeq)
     if args.cheat:
         # use biopython to reverse complement the sequence
-        cheated = revCompCheat(args.inputSeq,args.formt)
+        cheated = revCompCheat(args.inputSeq,args.fasta)
         if args.out:
             out = out + '.fasta'
             with open(out, 'w') as outfile:
